@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="@alla_artsew">
+    <title>Моя кулинарная книга</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: linear-gradient(135deg, #ffd06a, #ffc26c);
+            --secondary: #d1bb64;
+            --accent: #f8b500;
+            --light: #f9f9f9;
+            --dark: #333;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--primary);
+            color: #333;
+            padding: 2rem 0;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        input, textarea, select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--accent);
+            color: var(--dark);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e0a500;
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        .sidebar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+
+        .categories h3 {
+            margin-bottom: 1rem;
+            color: #b38b2d;
+        }
+
+        .category-list {
+            list-style: none;
+        }
+
+        .category-list li {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background-color: var(--light);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-list li:hover, .category-list li.active {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .add-recipe-btn {
+            width: 100%;
+            margin-top: 1rem;
+            background: var(--primary);
+            color: #333;
+            font-weight: bold;
+        }
+
+        .export-import-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .export-btn {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .import-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .recipe-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .recipe-image {
+            height: 180px;
+            background-color: #ddd;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .recipe-content {
+            padding: 1.2rem;
+        }
+
+        .recipe-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #b38b2d;
+        }
+
+        .recipe-category {
+            display: inline-block;
+            background-color: var(--light);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 0.8rem;
+            color: #666;
+        }
+
+        .recipe-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .recipe-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .edit-btn {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .view-modal-content {
+            max-width: 900px;
+        }
+
+        .recipe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            width: 100%;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .recipe-detail {
+            margin-top: 1rem;
+        }
+
+        .recipe-detail-image {
+            width: 100%;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .recipe-detail-section {
+            margin-bottom: 2rem;
+        }
+
+        .recipe-detail-section h3 {
+            color: #b38b2d;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .ingredients-list, .instructions-list {
+            padding-left: 1.5rem;
+        }
+
+        .ingredients-list li, .instructions-list li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .instructions-list li {
+            margin-bottom: 1rem;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .view-modal-content {
+                max-width: 95%;
+            }
+            
+            .recipe-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .recipe-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>🍳 Кулинарная книга</h1>
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Найти рецепт...">
+                    <button id="searchBtn">Поиск</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="categories">
+                    <h3>Категории</h3>
+                    <ul class="category-list">
+                        <li class="active" data-category="all">Все рецепты</li>
+                        <li data-category="breakfast">Завтраки</li>
+                        <li data-category="lunch">Обеды</li>
+                        <li data-category="dinner">Ужины</li>
+                        <li data-category="dessert">Десерты</li>
+                        <li data-category="drinks">Напитки</li>
+                    </ul>
+                </div>
+                <button class="add-recipe-btn" id="addRecipeBtn">+ Добавить рецепт</button>
+                
+                <div class="export-import-buttons">
+                    <button class="export-btn" id="exportBtn">📥 Экспорт рецептов</button>
+                    <button class="import-btn" id="importBtn">📤 Импорт рецептов</button>
+                    <input type="file" id="importFile" class="hidden" accept=".json">
+                </div>
+            </div>
+
+            <div class="recipes-container">
+                <div class="recipes-grid" id="recipesGrid">
+                    <!-- Рецепты будут добавляться здесь -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления/редактирования рецепта -->
+    <div class="modal" id="recipeModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeModal">&times;</button>
+            <h2 id="modalTitle">Добавить новый рецепт</h2>
+            <form id="recipeForm">
+                <input type="hidden" id="recipeId">
+                
+                <div class="form-group">
+                    <label for="recipeTitle">Название рецепта</label>
+                    <input type="text" id="recipeTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="recipeCategory">Категория</label>
+                    <select id="recipeCategory" required>
+                        <option value="breakfast">Завтрак</option>
+                        <option value="lunch">Обед</option>
+                        <option value="dinner">Ужин</option>
+                        <option value="dessert">Десерт</option>
+                        <option value="drinks">Напитки</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="recipeDescription">Описание</label>
+                    <textarea id="recipeDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="recipeIngredients">Ингредиенты (каждый с новой строки)</label>
+                    <textarea id="recipeIngredients" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="recipeInstructions">Инструкция приготовления</label>
+                    <textarea id="recipeInstructions" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="recipeImage">Ссылка на изображение (необязательно)</label>
+                    <input type="text" id="recipeImage">
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" id="submitBtn">Сохранить рецепт</button>
+                    <button type="button" id="deleteBtn" class="delete-btn hidden">Удалить рецепт</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно просмотра рецепта -->
+    <div class="modal" id="viewRecipeModal">
+        <div class="modal-content view-modal-content">
+            <button class="close-btn" id="closeViewModal">&times;</button>
+            <div id="recipeDetailContent">
+                <!-- Содержимое рецепта будет добавляться здесь -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+       // Пример начальных данных с тремя рецептами для каждой категории
+    const initialRecipes = [
+    // ЗАВТРАКИ
+    {
+        id: 1,
+        title: "Овсяная каша с ягодами",
+        category: "breakfast",
+        description: "Питательный и полезный завтрак с ягодами и орехами",
+        ingredients: "Овсяные хлопья - 100 г\nМолоко - 250 мл\nМед - 2 ст.л.\nСмесь ягод (свежих или замороженных) - 100 г\nГрецкие орехи - 30 г\nКорица - щепотка",
+        instructions: "1. В кастрюле доведите молоко до кипения\n2. Добавьте овсяные хлопья и варите 5-7 минут на медленном огне\n3. Добавьте мед и корицу, перемешайте\n4. Подавайте с ягодами и измельченными орехами\n5. Можно добавить банан или другие фрукты по вкусу",
+        image: ""
+    },
+    {
+        id: 2,
+        title: "Сырники с малиновым соусом",
+        category: "breakfast",
+        description: "Нежные творожные сырники с ароматным соусом",
+        ingredients: "Творог - 500 г\nЯйца - 2 шт\nМука - 4 ст.л.\nСахар - 3 ст.л.\nВанилин - 1 ч.л.\nСоль - щепотка\nМалина (свежая или замороженная) - 200 г\nСахар для соуса - 2 ст.л.",
+        instructions: "1. Творог протрите через сино\n2. Смешайте творог с яйцами, сахаром, ванилином и солью\n3. Добавьте муку и замесите тесто\n4. Сформируйте сырники и обжарьте на среднем огне до золотистой корочки\n5. Для соуса разомните малину с сахаром\n6. Подавайте сырники с малиновым соусом",
+        image: ""
+    },
+    {
+        id: 3,
+        title: "Авокадо-тост с яйцом пашот",
+        category: "breakfast",
+        description: "Модный и полезный завтрак для начала дня",
+        ingredients: "Хлеб для тостов - 2 ломтика\nАвокадо - 1 шт\nЯйца - 2 шт\nЛимонный сок - 1 ч.л.\nСоль, перец - по вкусу\nСемена чиа или кунжут - для посыпки\nУксус - 1 ст.л. для яиц",
+        instructions: "1. Поджарьте тосты до хрустящей корочки\n2. Авокадо разомните вилкой, добавьте лимонный сок, соль и перец\n3. Намажьте пасту из авокадо на тосты\n4. Приготовьте яйца пашот: в кипящую воду добавьте уксус, создайте воронку и вбейте яйцо, варите 3-4 минуты\n5. Выложите яйцо на тост, посыпьте семенами\n6. Можно добавить немного оливкового масла",
+        image: ""
+    },
+
+    // ОБЕДЫ
+    {
+        id: 4,
+        title: "Куриный суп с лапшой",
+        category: "lunch",
+        description: "Ароматный домашний суп для всей семьи",
+        ingredients: "Куриная грудка - 400 г\nЛапша - 150 г\nМорковь - 2 шт\nЛук репчатый - 1 шт\nКартофель - 3 шт\nЗелень (укроп, петрушка) - пучок\nСоль, перец горошком - по вкусу\nЛавровый лист - 2 шт",
+        instructions: "1. Курицу залейте холодной водой, доведите до кипения, снимите пену\n2. Добавьте целую луковицу и варите 30 минут\n3. Достаньте курицу и лук, бульон процедите\n4. Добавьте нарезанные картофель и морковь, варите 15 минут\n5. Курицу нарежьте, верните в суп\n6. Добавьте лапшу, варите 5-7 минут\n7. В конце добавьте зелень и специи",
+        image: ""
+    },
+    {
+        id: 5,
+        title: "Греческий салат",
+        category: "lunch",
+        description: "Классический средиземноморский салат",
+        ingredients: "Помидоры - 3 шт\nОгурцы - 2 шт\nПерец болгарский - 1 шт\nКрасный лук - 1/2 шт\nМаслины без косточек - 100 г\nСыр фета - 200 г\nОливковое масло - 4 ст.л.\nЛимонный сок - 1 ст.л.\nОрегано - 1 ч.л.\nСоль - по вкусу",
+        instructions: "1. Помидоры нарежьте дольками\n2. Огурцы нарежьте полукольцами\n3. Перец нарежьте соломкой\n4. Лук нарежьте тонкими полукольцами\n5. Сыр нарежьте кубиками\n6. Смешайте все ингредиенты в большой миске\n7. Заправьте оливковым маслом и лимонным соком\n8. Посыпьте орегано и аккуратно перемешайте",
+        image: ""
+    },
+    {
+        id: 6,
+        title: "Лазанья с мясным соусом",
+        category: "lunch",
+        description: "Итальянская классика с слоями пасты и соуса",
+        ingredients: "Листы для лазаньи - 12 шт\nФарш мясной - 500 г\nЛук - 1 шт\nМорковь - 1 шт\nЧеснок - 2 зубчика\nТоматная паста - 3 ст.л.\nТоматы в собственном соку - 400 г\nМоцарелла - 250 г\nПармезан - 100 г\nСоус бешамель - 500 мл\nСоль, перец, базилик - по вкусу",
+        instructions: "1. Обжарьте лук, морковь и чеснок\n2. Добавьте фарш, обжаривайте 10 минут\n3. Добавьте томатную пасту и томаты, тушите 20 минут\n4. В форму выложите слой соуса, затем листы лазаньи\n5. Чередуйте слои: соус, лазанья, бешамель, сыр\n6. Последний слой - сыр\n7. Выпекайте 40 минут при 180°C\n8. Дайте постоять 10 минут перед подачей",
+        image: ""
+    },
+
+    // УЖИНЫ
+    {
+        id: 7,
+        title: "Лосось в медово-соевом соусе",
+        category: "dinner",
+        description: "Нежная рыба с сладковато-соленым соусом",
+        ingredients: "Филе лосося - 4 шт\nМед - 2 ст.л.\nСоевый соус - 3 ст.л.\nЧеснок - 2 зубчика\nИмбирь тертый - 1 ч.л.\nЛимонный сок - 1 ст.л.\nКунжут - для посыпки\nЗеленый лук - 2 стебля",
+        instructions: "1. Смешайте мед, соевый соус, чеснок, имбирь и лимонный сок\n2. Замаринуйте лосось в соусе на 30 минут\n3. Разогрейте духовку до 200°C\n4. Выложите рыбу на противень\n5. Запекайте 12-15 минут\n6. Полите оставшимся соусом\n7. Посыпьте кунжутом и зеленым луком\n8. Подавайте с рисом или овощами",
+        image: ""
+    },
+    {
+        id: 8,
+        title: "Овощное рагу с тофу",
+        category: "dinner",
+        description: "Вегетарианское рагу с тофу и сезонными овощами",
+        ingredients: "Тофу - 400 г\nКабачок - 1 шт\nБаклажан - 1 шт\nПерец болгарский - 2 шт\nПомидоры - 3 шт\nЛук - 1 шт\nЧеснок - 3 зубчика\nОливковое масло - 3 ст.л.\nСоевый соус - 2 ст.л.\nПаприка - 1 ч.л.\nЗелень - для подачи",
+        instructions: "1. Тофу нарежьте кубиками и обжарьте до золотистой корочки\n2. Нарежьте все овощи кубиками\n3. Обжарьте лук и чеснок до прозрачности\n4. Добавьте овощи и обжаривайте 10 минут\n5. Добавьте тофу, соевый соус и паприку\n6. Тушите под крышкой 15-20 минут\n7. В конце добавьте зелень\n8. Подавайте как самостоятельное блюдо или с киноа",
+        image: ""
+    },
+    {
+        id: 9,
+        title: "Куриные грудки в сливочном соусе",
+        category: "dinner",
+        description: "Нежная курица в сливочно-грибном соусе",
+        ingredients: "Куриные грудки - 4 шт\nШампиньоны - 300 г\nЛук - 1 шт\nСливки 20% - 200 мл\nСыр пармезан - 50 г\nЧеснок - 2 зубчика\nМасло сливочное - 50 г\nБелое вино - 100 мл\nСоль, перец, тимьян - по вкусу",
+        instructions: "1. Куриные грудки нарежьте, обжарьте до золотистой корочки\n2. Отдельно обжарьте лук и грибы\n3. Добавьте чеснок и тимьян, готовьте 1 минуту\n4. Влейте вино, выпарите алкоголь\n5. Добавьте сливки и доведите до кипения\n6. Верните курицу в соус, тушите 5 минут\n7. Добавьте тертый пармезан\n8. Подавайте с пастой или картофельным пюре",
+        image: ""
+    },
+
+    // ДЕСЕРТЫ
+    {
+        id: 10,
+        title: "Тирамису классический",
+        category: "dessert",
+        description: "Итальянский десерт с кофе и mascarpone",
+        ingredients: "Сыр маскарпоне - 500 г\nЯйца - 4 шт\nСахар - 150 г\nПеченье савоярди - 300 г\nКофе эспрессо - 400 мл\nКакао-порошок - для посыпки\nМарсала (по желанию) - 50 мл",
+        instructions: "1. Взбейте желтки с сахаром до белой пены\n2. Добавьте маскарпоне, аккуратно перемешайте\n3. Отдельно взбейте белки до пиков\n4. Аккуратно вмешайте белки в сырную массу\n5. Быстро обмакните печенье в охлажденный кофе\n6. Выложите слой печенья в форму\n7. Нанесите слой крема\n8. Повторите слои\n9. Уберите в холодильник на 6 часов\n10. Перед подачей посыпьте какао",
+        image: ""
+    },
+    {
+        id: 11,
+        title: "Шоколадный мусс",
+        category: "dessert",
+        description: "Воздушный шоколадный мусс с насыщенным вкусом",
+        ingredients: "Темный шоколад 70% - 200 г\nСливочное масло - 50 г\nЯйца - 3 шт\nСахар - 100 г\nСливки 33% - 200 мл\nВанильный экстракт - 1 ч.л.\nСоль - щепотка",
+        instructions: "1. Растопите шоколад с маслом на водяной бане\n2. Отделите желтки от белков\n3. Взбейте желтки с половиной сахара до светлой массы\n4. Взбейте белки с оставшимся сахаром до пиков\n5. Взбейте сливки до мягких пиков\n6. Смешайте шоколад с желтками\n7. Аккуратно вмешайте белки, затем сливки\n8. Разложите по креманкам\n9. Охлаждайте 4 часа\n10. Украсьте шоколадной стружкой",
+        image: ""
+    },
+    {
+        id: 12,
+        title: "Яблочный штрудель",
+        category: "dessert",
+        description: "Традиционный австрийский десерт с яблоками",
+        ingredients: "Тесто фило - 6 листов\nЯблоки - 1 кг\nИзюм - 100 г\nГрецкие орехи - 100 г\nСахар - 150 г\nКорица - 2 ч.л.\nЛимонный сок - 2 ст.л.\nСливочное масло - 100 г\nПанировочные сухари - 50 г",
+        instructions: "1. Яблоки очистите и нарежьте тонкими дольками\n2. Смешайте с изюмом, орехами, сахаром, корицей и лимонным соком\n3. Растопите масло\n4. Разложите лист теста, смажьте маслом\n5. Повторите с остальными листами\n6. Посыпьте панировочными сухарями\n7. Выложите начинку, заверните рулетом\n8. Смажьте маслом, выпекайте 30 минут при 180°C\n9. Подавайте теплым с мороженым",
+        image: ""
+    },
+
+    // НАПИТКИ
+    {
+        id: 13,
+        title: "Домашний лимонад",
+        category: "drinks",
+        description: "Освежающий цитрусовый напиток",
+        ingredients: "Лимоны - 4 шт\nЛаймы - 2 шт\nСахар - 150 г\nВода - 1 л\nМята - несколько веточек\nЛед - по вкусу\nГазированная вода - 500 мл",
+        instructions: "1. Из 2 лимонов и 1 лайма выжмите сок\n2. Оставшиеся цитрусы нарежьте тонкими кружочками\n3. Сахар растворите в небольшом количестве горячей воды\n4. Смешайте цитрусовый сок, сахарный сироп и обычную воду\n5. Добавьте кружки цитрусов и мяту\n6. Перед подачей добавьте газированную воду и лед\n7. Украсьте мятой и долькой лимона",
+        image: ""
+    },
+    {
+        id: 14,
+        title: "Имбирный чай с медом",
+        category: "drinks",
+        description: "Согревающий напиток с имбирем и специями",
+        ingredients: "Свежий имбирь - 50 г\nВода - 1 л\nМед - 3-4 ст.л.\nЛимон - 1 шт\nКорица - 1 палочка\nГвоздика - 3-4 шт\nКардамон - 2-3 коробочки",
+        instructions: "1. Имбирь очистите и нарежьте тонкими ломтиками\n2. В кипящую воду добавьте имбирь и специи\n3. Варите на медленном огне 10-15 минут\n4. Снимите с огня, добавьте сок лимона\n5. Дайте настояться 5 минут\n6. Процедите напиток\n7. Добавьте мед по вкусу (не в кипяток!)\n8. Подавайте горячим",
+        image: ""
+    },
+    {
+        id: 15,
+        title: "Ягодный смузи",
+        category: "drinks",
+        description: "Питательный витаминный коктейль",
+        ingredients: "Смесь замороженных ягод - 200 г\nБананы - 2 шт\nНатуральный йогурт - 200 мл\nМолоко или сок - 150 мл\nМед - 1-2 ст.л.\nСемена чиа - 1 ст.л.\nШпинат (по желанию) - горсть",
+        instructions: "1. Бананы нарежьте кусочками\n2. Все ингредиенты поместите в блендер\n3. Взбивайте до однородной консистенции\n4. Если смузи слишком густой, добавьте еще жидкости\n5. Разлейте по стаканам\n6. Сразу подавайте, украсив ягодами\n7. Можно посыпать кокосовой стружкой или орехами",
+        image: ""
+    }
+];
+
+
+        // Загрузка рецептов из localStorage или использование начальных данных
+        let recipes = JSON.parse(localStorage.getItem('recipes')) || initialRecipes;
+        let currentCategory = 'all';
+        let currentSearch = '';
+        let isEditing = false;
+        let currentEditId = null;
+
+        // Элементы DOM
+        const recipesGrid = document.getElementById('recipesGrid');
+        const categoryItems = document.querySelectorAll('.category-list li');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const addRecipeBtn = document.getElementById('addRecipeBtn');
+        const recipeModal = document.getElementById('recipeModal');
+        const closeModal = document.getElementById('closeModal');
+        const recipeForm = document.getElementById('recipeForm');
+        const viewRecipeModal = document.getElementById('viewRecipeModal');
+        const closeViewModal = document.getElementById('closeViewModal');
+        const recipeDetailContent = document.getElementById('recipeDetailContent');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const importFile = document.getElementById('importFile');
+        const modalTitle = document.getElementById('modalTitle');
+        const recipeIdInput = document.getElementById('recipeId');
+        const submitBtn = document.getElementById('submitBtn');
+        const deleteBtn = document.getElementById('deleteBtn');
+
+        // Отображение рецептов
+        function displayRecipes() {
+            recipesGrid.innerHTML = '';
+            
+            const filteredRecipes = recipes.filter(recipe => {
+                const matchesCategory = currentCategory === 'all' || recipe.category === currentCategory;
+                const matchesSearch = recipe.title.toLowerCase().includes(currentSearch.toLowerCase()) || 
+                                     recipe.description.toLowerCase().includes(currentSearch.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filteredRecipes.length === 0) {
+                recipesGrid.innerHTML = '<p>Рецепты не найдены</p>';
+                return;
+            }
+
+            filteredRecipes.forEach(recipe => {
+                const recipeCard = document.createElement('div');
+                recipeCard.className = 'recipe-card';
+                
+                const categoryNames = {
+                    breakfast: 'Завтрак',
+                    lunch: 'Обед',
+                    dinner: 'Ужин',
+                    dessert: 'Десерт',
+                    drinks: 'Напитки'
+                };
+
+                recipeCard.innerHTML = `
+                    <div class="recipe-image" style="background-image: url('${recipe.image || 'https://via.placeholder.com/300x180?text=Нет+изображения'}')"></div>
+                    <div class="recipe-content">
+                        <h3 class="recipe-title">${recipe.title}</h3>
+                        <span class="recipe-category">${categoryNames[recipe.category]}</span>
+                        <p class="recipe-description">${recipe.description}</p>
+                        <div class="recipe-actions">
+                            <button onclick="viewRecipe(${recipe.id})">Посмотреть рецепт</button>
+                            <button class="edit-btn" onclick="editRecipe(${recipe.id})">✏️ Редактировать</button>
+                        </div>
+                    </div>
+                `;
+                
+                recipesGrid.appendChild(recipeCard);
+            });
+        }
+
+        // Просмотр полного рецепта
+        function viewRecipe(id) {
+            const recipe = recipes.find(r => r.id === id);
+            if (recipe) {
+                const categoryNames = {
+                    breakfast: 'Завтрак',
+                    lunch: 'Обед',
+                    dinner: 'Ужин',
+                    dessert: 'Десерт',
+                    drinks: 'Напитки'
+                };
+                
+                // Форматируем ингредиенты и инструкции
+                const ingredientsList = recipe.ingredients.split('\n')
+                    .map(ingredient => `<li>${ingredient}</li>`)
+                    .join('');
+                
+                const instructionsList = recipe.instructions.split('\n')
+                    .map(instruction => `<li>${instruction}</li>`)
+                    .join('');
+                
+                recipeDetailContent.innerHTML = `
+                    <div class="recipe-header">
+                        <h2>${recipe.title}</h2>
+                        <button class="edit-btn" onclick="editRecipe(${recipe.id}); viewRecipeModal.style.display='none';">✏️ Редактировать</button>
+                    </div>
+                    <div class="recipe-category">${categoryNames[recipe.category]}</div>
+                    <p class="recipe-description">${recipe.description}</p>
+                    
+                    ${recipe.image ? `<div class="recipe-detail-image" style="background-image: url('${recipe.image}')"></div>` : ''}
+                    
+                    <div class="recipe-detail">
+                        <div class="two-column">
+                            <div class="recipe-detail-section">
+                                <h3>Ингредиенты</h3>
+                                <ul class="ingredients-list">
+                                    ${ingredientsList}
+                                </ul>
+                            </div>
+                            
+                            <div class="recipe-detail-section">
+                                <h3>Инструкция приготовления</h3>
+                                <ol class="instructions-list">
+                                    ${instructionsList}
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                viewRecipeModal.style.display = 'flex';
+            }
+        }
+
+        // Редактирование рецепта
+        function editRecipe(id) {
+            const recipe = recipes.find(r => r.id === id);
+            if (!recipe) return;
+
+            isEditing = true;
+            currentEditId = id;
+
+            // Заполняем форму данными рецепта
+            recipeIdInput.value = recipe.id;
+            document.getElementById('recipeTitle').value = recipe.title;
+            document.getElementById('recipeCategory').value = recipe.category;
+            document.getElementById('recipeDescription').value = recipe.description;
+            document.getElementById('recipeIngredients').value = recipe.ingredients;
+            document.getElementById('recipeInstructions').value = recipe.instructions;
+            document.getElementById('recipeImage').value = recipe.image || '';
+
+            // Меняем заголовок и показываем кнопку удаления
+            modalTitle.textContent = 'Редактировать рецепт';
+            deleteBtn.classList.remove('hidden');
+            submitBtn.textContent = 'Обновить рецепт';
+
+            // Открываем модальное окно
+            recipeModal.style.display = 'flex';
+        }
+
+        // Удаление рецепта
+        function deleteRecipe() {
+            if (!confirm('Вы уверены, что хотите удалить этот рецепт?')) {
+                return;
+            }
+
+            const id = parseInt(recipeIdInput.value);
+            recipes = recipes.filter(recipe => recipe.id !== id);
+            localStorage.setItem('recipes', JSON.stringify(recipes));
+            
+            closeRecipeModal();
+            displayRecipes();
+            alert('Рецепт успешно удален!');
+        }
+
+        // Закрытие модального окна рецепта
+        function closeRecipeModal() {
+            recipeModal.style.display = 'none';
+            resetForm();
+        }
+
+        // Сброс формы
+        function resetForm() {
+            recipeForm.reset();
+            recipeIdInput.value = '';
+            modalTitle.textContent = 'Добавить новый рецепт';
+            deleteBtn.classList.add('hidden');
+            submitBtn.textContent = 'Сохранить рецепт';
+            isEditing = false;
+            currentEditId = null;
+        }
+
+        // Экспорт рецептов в файл
+        function exportRecipes() {
+            const dataStr = JSON.stringify(recipes, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'мои-рецепты.json';
+            link.click();
+            
+            setTimeout(() => {
+                alert(`Рецепты успешно экспортированы! Файл: мои-рецепты.json\n\nСохранено рецептов: ${recipes.length}`);
+            }, 100);
+        }
+
+        // Импорт рецептов из файла
+        function importRecipes(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedRecipes = JSON.parse(e.target.result);
+                    
+                    if (!Array.isArray(importedRecipes)) {
+                        throw new Error('Файл должен содержать массив рецептов');
+                    }
+                    
+                    // Проверяем структуру рецептов
+                    const isValid = importedRecipes.every(recipe => 
+                        recipe.title && recipe.category && recipe.ingredients && recipe.instructions
+                    );
+                    
+                    if (!isValid) {
+                        throw new Error('Некорректная структура рецептов в файле');
+                    }
+                    
+                    if (confirm(`Найдено рецептов: ${importedRecipes.length}. Заменить текущие рецепты?`)) {
+                        recipes = importedRecipes;
+                        localStorage.setItem('recipes', JSON.stringify(recipes));
+                        displayRecipes();
+                        alert(`Успешно импортировано ${recipes.length} рецептов!`);
+                    }
+                } catch (error) {
+                    alert(`Ошибка при импорте: ${error.message}`);
+                }
+                
+                // Сбрасываем значение input, чтобы можно было выбрать тот же файл снова
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // Фильтрация по категориям
+        categoryItems.forEach(item => {
+            item.addEventListener('click', () => {
+                categoryItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                currentCategory = item.dataset.category;
+                displayRecipes();
+            });
+        });
+
+        // Поиск рецептов
+        searchBtn.addEventListener('click', () => {
+            currentSearch = searchInput.value;
+            displayRecipes();
+        });
+
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                currentSearch = searchInput.value;
+                displayRecipes();
+            }
+        });
+
+        // Открытие модального окна добавления рецепта
+        addRecipeBtn.addEventListener('click', () => {
+            recipeModal.style.display = 'flex';
+        });
+
+        // Закрытие модальных окон
+        closeModal.addEventListener('click', closeRecipeModal);
+
+        closeViewModal.addEventListener('click', () => {
+            viewRecipeModal.style.display = 'none';
+        });
+
+        // Обработка формы добавления/редактирования рецепта
+        recipeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = isEditing ? 'Обновление...' : 'Сохранение...';
+
+            try {
+                const recipeData = {
+                    title: document.getElementById('recipeTitle').value,
+                    category: document.getElementById('recipeCategory').value,
+                    description: document.getElementById('recipeDescription').value,
+                    ingredients: document.getElementById('recipeIngredients').value,
+                    instructions: document.getElementById('recipeInstructions').value,
+                    image: document.getElementById('recipeImage').value
+                };
+
+                if (isEditing && currentEditId) {
+                    // Редактируем существующий рецепт
+                    recipeData.id = currentEditId;
+                    const index = recipes.findIndex(recipe => recipe.id === currentEditId);
+                    if (index !== -1) {
+                        recipes[index] = recipeData;
+                    }
+                } else {
+                    // Добавляем новый рецепт
+                    recipeData.id = Date.now();
+                    recipes.push(recipeData);
+                }
+
+                localStorage.setItem('recipes', JSON.stringify(recipes));
+                
+                closeRecipeModal();
+                displayRecipes();
+                
+                alert(isEditing ? 'Рецепт успешно обновлен!' : 'Рецепт успешно добавлен!');
+            } catch (error) {
+                alert('Ошибка при сохранении рецепта: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = isEditing ? 'Обновить рецепт' : 'Сохранить рецепт';
+            }
+        });
+
+        // Экспорт рецептов
+        exportBtn.addEventListener('click', exportRecipes);
+
+        // Импорт рецептов
+        importBtn.addEventListener('click', () => {
+            importFile.click();
+        });
+
+        importFile.addEventListener('change', importRecipes);
+
+        // Удаление рецепта
+        deleteBtn.addEventListener('click', deleteRecipe);
+
+        // Закрытие модальных окон при клике вне их
+        window.addEventListener('click', (e) => {
+            if (e.target === recipeModal) {
+                closeRecipeModal();
+            }
+            if (e.target === viewRecipeModal) {
+                viewRecipeModal.style.display = 'none';
+            }
+        });
+
+        // Инициализация приложения
+        displayRecipes();
+    </script>
+</body>
+</html>
