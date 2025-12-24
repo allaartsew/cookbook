@@ -1,6 +1,26 @@
-# cookbook
-Local cookbook
-Download this html and open in any device (not sure iOS, Windows, Android - sure). 
-You can edit and add recipies, export/import recipies (json).
+# Local cookbook
+
+Download this html and open in any device 
+
+*(not sure iOS, Windows, Android - sure).*
+
+You can
+``` 
+* edit
+* add recipies
+* export/import recipies (JSON).
+```
 ---
-Cook with 🧡!
+# Моя локальная кулинарная книга 
+Скачайте этот HTML-файл и откройте его на любом устройстве 
+
+*(не уверена насчет iOS, Windows, Android — работает).*
+
+Вы можете
+```
+* редактировать
+* добавлять рецепты
+* экспортировать/импортировать рецепты (в формате JSON).
+```
+---
+`Cook with 🧡!` *@alla_artsew*
