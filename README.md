@@ -1,8 +1,6 @@
 # Local cookbook
 
-Download this html and open in any device 
-
-*(not sure iOS, Windows, Android - sure).*
+Download this html and open in browser (better on PC)
 
 You can
 ``` 
@@ -13,9 +11,7 @@ You can
 ```
 ---
 # Моя локальная кулинарная книга 
-Скачайте этот HTML-файл и откройте его на любом устройстве 
-
-*(не уверена насчет iOS, Windows, Android — работает).*
+Скачайте этот HTML-файл и откройте его в браузере (лучше на ПК)
 
 Вы можете
 ```
